@@ -1,24 +1,47 @@
-import logo from './logo.svg';
+import React from 'react';
+import { AuthProvider } from './context/AuthContext';
+import Login from './components/Login';
+import SalesAgentDashboard from './components/SalesAgentDashboard';
+import ManagerDashboard from './components/ManagerDashboard';
+import CeoDashboard from './components/CeoDashboard';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
+import { useAuth } from './context/AuthContext';
 
 function App() {
+  const { token, user, logout } = useAuth();
+
+  console.log('App.js - token:', token, 'user:', user);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthProvider>
+      <div className="App">
+        <ToastContainer />
+        {!token || !user ? (
+          <div className="login-container">
+            <h1>Welcome to Golden Crop Distributors Ltd</h1>
+            <Login />
+          </div>
+        ) : (
+          <>
+            <nav className="navbar">
+              <span>GCDL System</span>
+              <button onClick={logout}>Logout</button>
+            </nav>
+            {user.role === 'sales_agent' ? (
+              <SalesAgentDashboard />
+            ) : user.role === 'manager' ? (
+              <ManagerDashboard />
+            ) : user.role === 'ceo' ? (
+              <CeoDashboard />
+            ) : (
+              <div>Error: Invalid user role</div>
+            )}
+          </>
+        )}
+      </div>
+    </AuthProvider>
   );
 }
 
